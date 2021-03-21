@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import Layout from '../../components/Layout';
+import Youtube from '../../components/Youtube';
 import ms from 'ms';
 import { promises as fsPromises } from 'fs';
 import Markdown from 'markdown-to-jsx';
@@ -25,7 +26,14 @@ const Post = ({ post }) => {
         </div>
         <h1 className='text-xl'>{post.title}</h1>
         <div className='mb-5 border border-gray-300 p-2'>
-          <Markdown>{post.content}</Markdown>
+          <Markdown
+            options={{
+              overrides: {
+                Youtube: { component: Youtube },
+              },
+            }}>
+            {post.content}
+          </Markdown>
         </div>
       </div>
     </Layout>

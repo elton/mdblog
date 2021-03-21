@@ -13,6 +13,8 @@
 // limitations under the License.
 import Layout from '../../components/Layout';
 import ms from 'ms';
+import { promises as fsPromises } from 'fs';
+import Markdown from 'markdown-to-jsx';
 
 const Post = ({ post }) => {
   return (
@@ -22,19 +24,26 @@ const Post = ({ post }) => {
           Published {ms(Date.now() - post.createdAt, { long: true })} ago
         </div>
         <h1 className='text-xl'>{post.title}</h1>
-        <div className='mb-5 border border-gray-300 p-2'>{post.content}</div>
+        <div className='mb-5 border border-gray-300 p-2'>
+          <Markdown>{post.content}</Markdown>
+        </div>
       </div>
     </Layout>
   );
 };
 
 export async function getStaticPaths() {
+  const markdownFiles = await fsPromises.readdir('data');
+
+  const paths = markdownFiles.map((filename) => {
+    const slug = filename.replace(/.md$/, '');
+    return {
+      params: { slug },
+    };
+  });
+
   return {
-    paths: [
-      {
-        params: { slug: '2020-July-01-Hello-World' },
-      },
-    ],
+    paths,
     fallback: false,
   };
 }
@@ -44,12 +53,14 @@ export async function getStaticProps({ params }) {
   const createdAt = new Date(`${year} ${month} ${day}`).getTime();
   const title = rest.join(' ');
 
+  const content = await fsPromises.readFile(`data/${params.slug}.md`, 'utf8');
+
   return {
     props: {
       post: {
         slug: params.slug,
         title,
-        content: `This is content for ${title}`,
+        content,
         createdAt,
       },
     },

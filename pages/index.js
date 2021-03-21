@@ -1,5 +1,7 @@
 import Layout from '../components/Layout';
 import PostList from '../components/PostList';
+import { promises as fsPromises } from 'fs';
+
 const Home = ({ postList }) => {
   return (
     <Layout>
@@ -9,13 +11,19 @@ const Home = ({ postList }) => {
 };
 
 export async function getStaticProps() {
-  const postList = [
-    {
-      slug: '2020-July-01-Hello-World',
-      title: 'Hello World',
-      createdAt: new Date('2020 July 01').getTime(),
-    },
-  ];
+  const MarkdownFile = await fsPromises.readdir('data');
+  const postList = MarkdownFile.map((filename) => {
+    const slug = filename.replace(/.md$/, '');
+    const [year, month, day, ...rest] = slug.split('-');
+    const createdAt = new Date(`${year} ${month} ${day}`).getTime();
+    const title = rest.join(' ');
+
+    return {
+      slug,
+      createdAt,
+      title,
+    };
+  });
 
   return {
     props: {

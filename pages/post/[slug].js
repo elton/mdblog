@@ -16,8 +16,25 @@ import Youtube from '../../components/Youtube';
 import ms from 'ms';
 import githubCms from '../../lib/github-cms';
 import Markdown from 'markdown-to-jsx';
+import { useRouter } from 'next/router';
+import Head from 'next/head';
 
 const Post = ({ post }) => {
+  const router = useRouter();
+  if (router.isFallback) {
+    return <Layout>Loading...</Layout>;
+  }
+
+  if (!post) {
+    return (
+      <Layout>
+        <Head>
+          <meta name='robots' content='noindex' />
+        </Head>
+        404 - Page not found.
+      </Layout>
+    );
+  }
   return (
     <Layout>
       <div className='my-12 mx-auto max-w-2xl text-lg text-gray-700 mb-1'>
@@ -40,13 +57,42 @@ const Post = ({ post }) => {
   );
 };
 
-export async function getServerSideProps({ params }) {
-  const post = await githubCms.getPost(params.slug);
+export async function getStaticPaths() {
+  const postList = await githubCms.getPostList();
+  const paths = postList.map((post) => ({
+    params: {
+      slug: post.slug,
+    },
+  }));
+
+  return {
+    paths,
+    // If fallback is false, then any paths not returned by getStaticPaths will result in a 404 page.
+    // If fallback is true,
+    // The paths returned from getStaticPaths will be rendered to HTML at build time by getStaticProps.
+    // The paths that have not been generated at build time will serve a “fallback” version of the page on the first request to such a path
+    // Enable statically generating additional pages
+    // For example: `/posts/3`
+    // In the background, Next.js will statically generate the requested path HTML and JSON. This includes running getStaticProps.
+    fallback: true,
+  };
+}
+
+export async function getStaticProps({ params }) {
+  let post = null;
+  try {
+    post = await githubCms.getPost(params.slug);
+  } catch (err) {
+    if (err.status !== 404) {
+      throw err;
+    }
+  }
 
   return {
     props: {
       post,
     },
+    revalidate: 2,
   };
 }
 

@@ -10,8 +10,29 @@ const providers = [
 
 const callbacks = {};
 
+// Get the Email From GitHub
+// These callbacks allow us to modify the default behavior of NextAuth.
+callbacks.signIn = async function signIn(user, account, metadata) {
+  const emailRes = await fetch('https://api.github.com/user/emails', {
+    headers: {
+      // Here we get the GitHub accessToken and use that to fetch emails
+      Authorization: `token ${account.accessToken}`,
+    },
+  });
+  const emails = await emailRes.json();
+  const primaryEmail = emails.find((e) => e.primary).email;
+
+  user.email = primaryEmail;
+};
+
 const options = {
   providers,
+  session: {
+    jwt: true,
+  },
+  jwt: {
+    secret: process.env.JWT_SECRET,
+  },
   callbacks,
 };
 

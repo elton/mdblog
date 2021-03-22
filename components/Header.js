@@ -39,7 +39,7 @@ const Header = () => {
           <>
             <img
               src={session.user.image}
-              className='w-7 h-7 rounded-full ml-2'
+              className='w-7 h-7 rounded-full ml-2 border-gray-50 border-2'
             />
             <a href='#' onClick={handleLogout} className='text-white ml-2'>
               Logout

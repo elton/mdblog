@@ -16,7 +16,7 @@ const Youtube = (props) => {
   const src = `https://www.youtube.com/embed/${videoId}`;
 
   return (
-    <div className='youtube-container'>
+    <div className='relative hover:opacity-80'>
       <iframe
         width={width}
         height={height}

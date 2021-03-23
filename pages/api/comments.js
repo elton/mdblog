@@ -1,4 +1,5 @@
 import { getComments, addComment } from '../../lib/data';
+import { getSession } from 'next-auth/client';
 const comments = async (req, res) => {
   const { slug } = req.query.slug;
   if (req.method === 'GET') {
@@ -7,12 +8,17 @@ const comments = async (req, res) => {
   }
 
   if (req.method === 'POST') {
+    if (!session) {
+      res.status(401).send('Unauthenrized');
+      return;
+    }
+
     const comment = {
-      userId: 'user-id',
-      name: 'The User',
-      avatar: 'https://api.adorable.io/avatars/255/the-user@email.png',
+      userID: session.user.id,
+      name: session.user.profile.name,
+      avatar: session.user.profile.avatar,
       content: req.body.content,
-      createdAt: Date.now(),
+      createAt: Date.now(),
     };
 
     await addComment(slug, comment);

@@ -41,7 +41,7 @@ const comments = ({ slug }) => {
   return (
     <div>
       {comments && comments.length > 0 ? (
-        <div className='border-gray-300 border rounded my-2 max-w-2xl'>
+        <div className='my-2 max-w-2xl'>
           {comments.map((comment) => (
             <div
               key={comment.id}
@@ -49,7 +49,7 @@ const comments = ({ slug }) => {
               <div className='px-4 py-2 text-sm'>
                 <Markdown>{comment.content || ''}</Markdown>
               </div>
-              <div className='flex items-center border-t border-gray-400 p-2 text-xs bg-[#fafafa]'>
+              <div className='flex items-center border-t border-gray-200 p-2 text-xs bg-[#fafafa]'>
                 <img
                   src={comment.avatar}
                   title={comment.name}

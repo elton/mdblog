@@ -18,7 +18,8 @@ import ms from 'ms';
 import githubCms from '../../lib/github-cms';
 import Markdown from 'markdown-to-jsx';
 import { useRouter } from 'next/router';
-import Head from 'next/head';
+import { NextSeo } from 'next-seo';
+import findImageInMarkdown from '../../lib/find-image-in-markdown';
 
 const Post = ({ post }) => {
   const router = useRouter();
@@ -38,6 +39,21 @@ const Post = ({ post }) => {
   }
   return (
     <Layout>
+      <NextSeo
+        title={post.title}
+        description={post.summary}
+        openGraph={{
+          url: post.url,
+          title: post.title,
+          description: post.summary,
+          images: [{ url: post.image }],
+          site_name: 'My Blog App',
+        }}
+        twitter={{
+          cardType: 'summary_large_image',
+        }}
+      />
+
       <div className='my-12 mx-auto max-w-2xl text-lg text-gray-700 mb-1'>
         <div className='text-sm text-gray-600'>
           Published {ms(Date.now() - post.createdAt, { long: true })} ago
@@ -55,7 +71,7 @@ const Post = ({ post }) => {
         </div>
       </div>
       <div className='max-w-2xl mx-auto text-gray-700'>
-        <b>Comments:{post.slug}</b>
+        <b>Comments:</b>
         <Comments slug={post.slug} />
       </div>
     </Layout>
@@ -93,6 +109,10 @@ export async function getStaticProps({ params }) {
       throw err;
     }
   }
+
+  post.url = `${process.env.NEXT_PUBLIC_ROOT_URL}/post/${post.slug}`;
+  post.summary = `${post.content.substr(0, 100)}`;
+  post.image = findImageInMarkdown(post.content);
 
   return {
     props: {

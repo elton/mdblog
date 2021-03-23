@@ -13,6 +13,7 @@
 // limitations under the License.
 import Layout from '../../components/Layout';
 import Youtube from '../../components/Youtube';
+import Comments from '../../components/comments';
 import ms from 'ms';
 import githubCms from '../../lib/github-cms';
 import Markdown from 'markdown-to-jsx';
@@ -53,12 +54,17 @@ const Post = ({ post }) => {
           </Markdown>
         </div>
       </div>
+      <div className='max-w-2xl mx-auto text-gray-700'>
+        <b>Comments:{post.slug}</b>
+        <Comments slug={post.slug} />
+      </div>
     </Layout>
   );
 };
 
 export async function getStaticPaths() {
   const postList = await githubCms.getPostList();
+
   const paths = postList.map((post) => ({
     params: {
       slug: post.slug,

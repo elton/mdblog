@@ -2,6 +2,7 @@ import '../styles/globals.css';
 import { Provider } from 'next-auth/client';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ function MyApp({ Component, pageProps }) {
           }}
         />
         <Component {...pageProps} />
+        <ReactQueryDevtools initialIsOpen={false} />
       </Provider>
     </QueryClientProvider>
   );

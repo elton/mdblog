@@ -1,14 +1,19 @@
 import '../styles/globals.css';
+import React from 'react';
 import { Provider } from 'next-auth/client';
 import { DefaultSeo } from 'next-seo';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 
-const queryClient = new QueryClient();
-
 function MyApp({ Component, pageProps }) {
+  // 确保每个用户每个请求的数据独立
+  const queryClientRef = React.useRef();
+  if (!queryClientRef.current) {
+    queryClientRef.current = new QueryClient();
+  }
+
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClientRef.current}>
       <Provider>
         <DefaultSeo
           openGraph={{

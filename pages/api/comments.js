@@ -1,10 +1,16 @@
 import { getComments, addComment } from '../../lib/data';
 import { getSession } from 'next-auth/client';
 const comments = async (req, res) => {
-  const { slug } = req.query;
+  const { slug, sort, limit, offset } = req.query;
 
   if (req.method === 'GET') {
-    const comments = await getComments(slug);
+    const options = {
+      sort: sort ? parseInt(sort, 10) : undefined,
+      limit: limit ? parseInt(limit, 10) : undefined,
+      offset: offset ? parseInt(offset, 10) : undefined,
+    };
+
+    const comments = await getComments(slug, options);
     return res.send(comments);
   }
 

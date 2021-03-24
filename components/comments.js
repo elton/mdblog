@@ -3,18 +3,14 @@ import ms from 'ms';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 
 import AddCommentBox from './AddCommentBox';
+import { useComments } from '../hooks/useComments';
 
 const comments = ({ slug }) => {
   // Access the client
   const queryClient = useQueryClient();
 
-  const fetchComments = () =>
-    fetch(`/api/comments?slug=${slug}`).then((res) => res.json());
-
-  // Queries
-  const { isLoading, isError, error, data: comments, isFetching } = useQuery(
-    'commentsData',
-    fetchComments
+  const { isLoading, isError, error, data: comments, isFetching } = useComments(
+    slug
   );
 
   const handleAddComment = async (content) => {

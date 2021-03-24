@@ -12,7 +12,7 @@ const comments = ({ slug }) => {
     fetch(`/api/comments?slug=${slug}`).then((res) => res.json());
 
   // Queries
-  const { isLoading, error, data: comments } = useQuery(
+  const { isLoading, isError, error, data: comments, isFetching } = useQuery(
     'commentsData',
     fetchComments
   );
@@ -39,19 +39,15 @@ const comments = ({ slug }) => {
     },
   });
 
-  if (isLoading) {
-    return (
-      <div>
-        <div>Loading ...</div>
-      </div>
-    );
-  }
-
-  if (error) return <div>An error occurred {error.message}</div>;
-
   return (
     <div>
-      {comments && comments.length > 0 ? (
+      {isLoading ? (
+        <div>Loading ...</div>
+      ) : isError ? (
+        <div>An error occurred {error.message}</div>
+      ) : isFetching ? (
+        <div>Fetching ...</div>
+      ) : comments && comments.length > 0 ? (
         <div className='my-2 max-w-2xl'>
           {comments.map((comment) => (
             <div

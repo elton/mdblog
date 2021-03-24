@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSession, signIn } from 'next-auth/client';
 
-const AddCommentBox = ({ onSubmit }) => {
+const AddCommentBox = ({ mutation }) => {
   const [commentText, setCommentText] = useState('');
   const [adding, setAdding] = useState(false);
   const [session] = useSession();
@@ -13,7 +13,7 @@ const AddCommentBox = ({ onSubmit }) => {
   const handleAddComment = async () => {
     try {
       setAdding(true);
-      await onSubmit(commentText);
+      await mutation.mutate(commentText);
       setCommentText('');
     } finally {
       setAdding(false);

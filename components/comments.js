@@ -1,25 +1,27 @@
 import Markdown from 'markdown-to-jsx';
 import ms from 'ms';
-import useSWR from 'swr';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 
 import AddCommentBox from './AddCommentBox';
 
-const swrFethcer = async (path) => {
-  const res = await fetch(path);
-  return res.json();
-};
-
 const comments = ({ slug }) => {
-  const { data: comments, mutate } = useSWR(
-    `/api/comments?slug=${slug}`,
-    swrFethcer
+  // Access the client
+  const queryClient = useQueryClient();
+
+  const fetchComments = () =>
+    fetch(`/api/comments?slug=${slug}`).then((res) => res.json());
+
+  // Queries
+  const { isLoading, error, data: comments } = useQuery(
+    'commentsData',
+    fetchComments
   );
 
   const handleAddComment = async (content) => {
     const fetchRes = await fetch(`/api/comments?slug=${slug}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=UTF-8',
       },
       body: JSON.stringify({ content }),
     });
@@ -27,16 +29,25 @@ const comments = ({ slug }) => {
     if (!fetchRes.ok) {
       alert(`Error:${fetchRes.text()}`);
     }
-    mutate();
   };
 
-  if (!comments) {
+  // mutations
+  const mutation = useMutation(handleAddComment, {
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries('commentsData');
+    },
+  });
+
+  if (isLoading) {
     return (
       <div>
         <div>Loading ...</div>
       </div>
     );
   }
+
+  if (error) return <div>An error occurred {error.message}</div>;
 
   return (
     <div>
@@ -71,7 +82,7 @@ const comments = ({ slug }) => {
         </div>
       )}
 
-      <AddCommentBox onSubmit={handleAddComment} />
+      <AddCommentBox mutation={mutation} />
     </div>
   );
 };
